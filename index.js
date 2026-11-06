@@ -9,6 +9,7 @@
         blur: 8,
         opacity: 42,
         glassColor: '#e5edf2',
+        adapterProfile: 'native',
         saturation: 115,
         borderOpacity: 22,
         shadow: 18,
@@ -20,11 +21,39 @@
         secondaryColor: '#626d75',
         quoteColor: '#476c70',
         regions: {
+            chatCanvas: { enabled: true, selector: '#chat' },
             messages: { enabled: true, selector: '#chat .mes:not([is_system="true"])' },
-            topbar: { enabled: true, selector: '#top-settings-holder' },
+            topbar: { enabled: true, selector: '#top-bar, #top-settings-holder > .drawer' },
             composer: { enabled: true, selector: '#send_form' },
             popups: { enabled: true, selector: '.popup, .context-menu, .mes_buttons .dropdown-menu' },
-            panels: { enabled: true, selector: '#extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content' }
+            panels: { enabled: true, selector: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content' }
+        }
+    };
+
+    const ADAPTERS = {
+        native: {
+            chatCanvas: '#chat',
+            messages: '#chat .mes:not([is_system="true"])',
+            topbar: '#top-bar, #top-settings-holder > .drawer',
+            composer: '#send_form',
+            popups: '.popup, .context-menu, .mes_buttons .dropdown-menu',
+            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'
+        },
+        baseL: {
+            chatCanvas: '#chat',
+            messages: '#chat .mes:not([is_system="true"])',
+            topbar: '#top-bar, #top-settings-holder > .drawer',
+            composer: '#send_form',
+            popups: '.popup',
+            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'
+        },
+        duoBox: {
+            chatCanvas: '#chat',
+            messages: '#chat .mes:not([is_system="true"])',
+            topbar: '#top-settings-holder > .drawer, #top-bar',
+            composer: '#send_form',
+            popups: '.popup:not(.transparent_dialogue_popup), #dialogue_popup, #select_chat_popup, .draggable',
+            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'
         }
     };
 
@@ -136,6 +165,8 @@
     function syncControls() {
         const panel = document.getElementById(ROOT_ID);
         if (!panel) return;
+        const adapterSelect = panel.querySelector('[data-cgs2-adapter]');
+        if (adapterSelect) adapterSelect.value = settings.adapterProfile || 'native';
         panel.querySelectorAll('[data-cgs2-key]').forEach(control => {
             const value = getPath(settings, control.dataset.cgs2Key);
             if (value === undefined || document.activeElement === control) return;
@@ -177,6 +208,16 @@
         }
         saveSoon();
     }
+    function applyAdapter(name) {
+        const adapter = ADAPTERS[name];
+        if (!adapter) return;
+        settings.adapterProfile = name;
+        for (const [region, selector] of Object.entries(adapter)) {
+            settings.regions[region] = { ...(settings.regions[region] || {}), enabled: true, selector };
+        }
+        applySettings();
+        saveSoon();
+    }
     function setPreset(name) {
         const preset = PRESETS[name];
         if (!preset) return;
@@ -197,7 +238,10 @@
         const panel = document.getElementById(ROOT_ID);
         if (!panel) return;
         panel.addEventListener('input', event => { if (event.target.matches('[data-cgs2-key]')) updateControl(event.target); });
-        panel.addEventListener('change', event => { if (event.target.matches('[data-cgs2-key]')) updateControl(event.target); });
+        panel.addEventListener('change', event => {
+            if (event.target.matches('[data-cgs2-key]')) updateControl(event.target);
+            if (event.target.matches('[data-cgs2-adapter]')) applyAdapter(event.target.value);
+        });
         panel.addEventListener('click', event => {
             const preset = event.target.closest('[data-cgs2-preset]');
             if (preset) setPreset(preset.dataset.cgs2Preset);

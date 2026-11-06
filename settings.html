@@ -1,6 +1,6 @@
 <div id="cloud-glass-studio-universal" class="inline-drawer cgs2">
   <div class="inline-drawer-toggle inline-drawer-header">
-    <b>☁️ 云雾玻璃控制台 · 通用版 2.0</b>
+    <b>☁️ 云雾玻璃控制台 · 通用版 2.1</b>
     <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
   </div>
   <div class="inline-drawer-content cgs2-content">
@@ -18,6 +18,18 @@
     </section>
 
     <section class="cgs2-section">
+      <div class="cgs2-section-title">主题适配方案</div>
+      <label class="cgs2-control"><span>选择当前美化</span>
+        <select data-cgs2-adapter>
+          <option value="native">SillyTavern 原生 / 通用</option>
+          <option value="baseL">Base_L</option>
+          <option value="duoBox">双色盒子 · 浅色毛玻璃</option>
+        </select>
+      </label>
+      <p class="cgs2-help">选择后会载入对应区域选择器，并使用更高优先级的玻璃样式。之后仍可手动修改选择器。</p>
+    </section>
+
+    <section class="cgs2-section">
       <div class="cgs2-section-title">全局玻璃参数</div>
       <label class="cgs2-control"><span>模糊程度 <output data-cgs2-output="blur">8 px</output></span><input data-cgs2-key="blur" type="range" min="0" max="24" step="1"></label>
       <label class="cgs2-control"><span>玻璃透明度 <output data-cgs2-output="opacity">42%</output></span><input data-cgs2-key="opacity" type="range" min="0" max="95" step="1"></label>
@@ -32,6 +44,11 @@
       <div class="cgs2-section-title">界面区域适配</div>
       <p class="cgs2-help">每个区域可以单独启用。选择器使用 CSS 语法；多个目标可用逗号分隔。修改后会自动重新扫描页面。</p>
       <details class="cgs2-region" open>
+        <summary>聊天背景容器</summary>
+        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.chatCanvas.enabled"> 启用此区域</label>
+        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.chatCanvas.selector" rows="2" spellcheck="false"></textarea></label>
+      </details>
+      <details class="cgs2-region">
         <summary>聊天消息</summary>
         <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.messages.enabled"> 启用此区域</label>
         <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.messages.selector" rows="2" spellcheck="false"></textarea></label>
@@ -73,6 +90,6 @@
       <button type="button" data-cgs2-reset>恢复通用版默认值</button>
       <span data-cgs2-status>修改会自动保存</span>
     </div>
-    <p class="cgs2-note">说明：选择器是主题适配的关键。不同美化的 DOM 结构可能不同，默认规则不保证覆盖所有第三方主题；可以用浏览器检查元素后替换选择器。扩展只添加外观样式，不主动改动布局与交互。</p>
+    <p class="cgs2-note">说明：选择器是主题适配的关键。不同美化的 DOM 结构和 CSS 优先级可能不同；内置了 Base_L 与双色盒子适配方案，其他主题仍可自定义；可以用浏览器检查元素后替换选择器。扩展只添加外观样式，不主动改动布局与交互。</p>
   </div>
 </div>
