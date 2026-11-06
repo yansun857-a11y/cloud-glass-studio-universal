@@ -10,15 +10,15 @@ const DEFAULTS={
   messages:{enabled:true,selector:'#chat .mes:not([is_system="true"])'},
   topbar:{enabled:true,selector:'#top-bar, #top-settings-holder > .drawer'},
   composer:{enabled:true,selector:'#send_form'},
-  popups:{enabled:true,selector:'.popup, .context-menu, .mes_buttons .dropdown-menu'},
-  panels:{enabled:true,selector:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'}
+  popups:{enabled:false,selector:'.popup, .context-menu, .mes_buttons .dropdown-menu'},
+  panels:{enabled:false,selector:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'}
  },
  templates:[]
 };
 const ADAPTERS={
- native:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar, #top-settings-holder > .drawer',composer:'#send_form',popups:'.popup, .context-menu, .mes_buttons .dropdown-menu',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'},
- baseL:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar, #top-settings-holder > .drawer',composer:'#send_form',popups:'.popup',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'},
- duoBox:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-settings-holder > .drawer, #top-bar',composer:'#send_form',popups:'.popup:not(.transparent_dialogue_popup), #dialogue_popup, #select_chat_popup, .draggable',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'}
+ native:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar',composer:'#send_form',popups:'.popup, .context-menu, .mes_buttons .dropdown-menu',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'},
+ baseL:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar',composer:'#send_form',popups:'.popup',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'},
+ duoBox:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar',composer:'#send_form',popups:'.popup:not(.transparent_dialogue_popup), #dialogue_popup, #select_chat_popup, .draggable',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'}
 };
 const STARTER=[
  {id:'sky',name:'☁️ 晴空云雾',values:{blur:9,opacity:38,barOpacity:30,glassColor:'#e5edf2',font:'serif',fontSize:1,bodyColor:'#263744',secondaryColor:'#65727b',quoteColor:'#4c7180'}},
@@ -33,6 +33,15 @@ function merge(saved){
  for(const [k,v] of Object.entries(saved)){if(k==='regions'&&v){for(const [r,c] of Object.entries(v))if(s.regions[r])s.regions[r]={...s.regions[r],...c};}else if(k in s)s[k]=v;}
  if(!Array.isArray(s.templates))s.templates=[];
  if(!s.templates.length)s.templates=clone(STARTER);
+ // Migration safety: older 2.2.0 settings may have enabled blur on layout containers.
+ s.regions.popups.enabled=false;
+ s.regions.panels.enabled=false;
+ const profile=ADAPTERS[s.adapterProfile]?s.adapterProfile:'native';
+ s.adapterProfile=profile;
+ for(const [key,selector] of Object.entries(ADAPTERS[profile])){
+  s.regions[key].selector=selector;
+  if(key==='topbar')s.regions[key].enabled=true;
+ }
  return s;
 }
 function getSettings(){const c=SillyTavern.getContext();c.extensionSettings[MODULE]=merge(c.extensionSettings[MODULE]);return c.extensionSettings[MODULE];}
@@ -65,7 +74,7 @@ function syncControls(){
 }
 function saveSoon(){const s=document.querySelector(`#${ROOT_ID} [data-cgs2-status]`);if(s)s.textContent='正在保存…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{SillyTavern.getContext().saveSettingsDebounced();if(s)s.textContent='已自动保存';},250);}
 function update(el){const k=el.dataset.cgs2Key;if(!(k in DEFAULTS))return;settings[k]=el.type==='range'?Number(el.value):el.value;apply();saveSoon();}
-function applyAdapter(name){if(!ADAPTERS[name])return;settings.adapterProfile=name;for(const [k,v] of Object.entries(ADAPTERS[name]))settings.regions[k]={...(settings.regions[k]||{}),enabled:true,selector:v};apply();saveSoon();}
+function applyAdapter(name){if(!ADAPTERS[name])return;settings.adapterProfile=name;for(const [k,v] of Object.entries(ADAPTERS[name]))settings.regions[k]={...(settings.regions[k]||{}),enabled:!['popups','panels'].includes(k),selector:v};apply();saveSoon();}
 function snapshot(){return Object.fromEntries(['blur','opacity','barOpacity','glassColor','font','fontSize','bodyColor','secondaryColor','quoteColor'].map(k=>[k,settings[k]]));}
 function applyTemplate(id){const t=settings.templates.find(x=>x.id===id);if(!t)return;Object.assign(settings,t.values);apply();saveSoon();}
 function renderTemplates(){
