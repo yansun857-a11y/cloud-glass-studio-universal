@@ -1,95 +1,36 @@
 <div id="cloud-glass-studio-universal" class="inline-drawer cgs2">
-  <div class="inline-drawer-toggle inline-drawer-header">
-    <b>☁️ 云雾玻璃控制台 · 通用版 2.1</b>
-    <div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div>
-  </div>
-  <div class="inline-drawer-content cgs2-content">
-    <p class="cgs2-intro">为不同酒馆主题提供可配置的玻璃效果。先选择预设，再按界面实际结构调整区域选择器。</p>
-
-    <section class="cgs2-section">
-      <div class="cgs2-section-title">快速主题</div>
-      <div class="cgs2-presets">
-        <button type="button" data-cgs2-preset="sky">☁️ 晴空</button>
-        <button type="button" data-cgs2-preset="forest">🌿 森林</button>
-        <button type="button" data-cgs2-preset="rose">🌸 玫瑰</button>
-        <button type="button" data-cgs2-preset="midnight">🌙 午夜</button>
-        <button type="button" data-cgs2-preset="native">原生 / 关闭</button>
-      </div>
-    </section>
-
-    <section class="cgs2-section">
-      <div class="cgs2-section-title">主题适配方案</div>
-      <label class="cgs2-control"><span>选择当前美化</span>
-        <select data-cgs2-adapter>
-          <option value="native">SillyTavern 原生 / 通用</option>
-          <option value="baseL">Base_L</option>
-          <option value="duoBox">双色盒子 · 浅色毛玻璃</option>
-        </select>
-      </label>
-      <p class="cgs2-help">选择后会载入对应区域选择器，并使用更高优先级的玻璃样式。之后仍可手动修改选择器。</p>
-    </section>
-
-    <section class="cgs2-section">
-      <div class="cgs2-section-title">全局玻璃参数</div>
-      <label class="cgs2-control"><span>模糊程度 <output data-cgs2-output="blur">8 px</output></span><input data-cgs2-key="blur" type="range" min="0" max="24" step="1"></label>
-      <label class="cgs2-control"><span>玻璃透明度 <output data-cgs2-output="opacity">42%</output></span><input data-cgs2-key="opacity" type="range" min="0" max="95" step="1"></label>
-      <label class="cgs2-control"><span>玻璃底色</span><input data-cgs2-key="glassColor" type="color"></label>
-      <label class="cgs2-control"><span>背景饱和度 <output data-cgs2-output="saturation">115%</output></span><input data-cgs2-key="saturation" type="range" min="50" max="200" step="5"></label>
-      <label class="cgs2-control"><span>边缘亮度 / 不透明度 <output data-cgs2-output="borderOpacity">22%</output></span><input data-cgs2-key="borderOpacity" type="range" min="0" max="80" step="1"></label>
-      <label class="cgs2-control"><span>阴影强度 <output data-cgs2-output="shadow">18%</output></span><input data-cgs2-key="shadow" type="range" min="0" max="60" step="1"></label>
-      <label class="cgs2-control"><span>圆角大小 <output data-cgs2-output="radius">14 px</output></span><input data-cgs2-key="radius" type="range" min="0" max="32" step="1"></label>
-    </section>
-
-    <section class="cgs2-section">
-      <div class="cgs2-section-title">界面区域适配</div>
-      <p class="cgs2-help">每个区域可以单独启用。选择器使用 CSS 语法；多个目标可用逗号分隔。修改后会自动重新扫描页面。</p>
-      <details class="cgs2-region" open>
-        <summary>聊天背景容器</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.chatCanvas.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.chatCanvas.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <details class="cgs2-region">
-        <summary>聊天消息</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.messages.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.messages.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <details class="cgs2-region">
-        <summary>顶部导航栏</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.topbar.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.topbar.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <details class="cgs2-region">
-        <summary>底部输入区</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.composer.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.composer.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <details class="cgs2-region">
-        <summary>弹出菜单</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.popups.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.popups.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <details class="cgs2-region">
-        <summary>设置面板</summary>
-        <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="regions.panels.enabled"> 启用此区域</label>
-        <label class="cgs2-control"><span>CSS 选择器</span><textarea data-cgs2-key="regions.panels.selector" rows="2" spellcheck="false"></textarea></label>
-      </details>
-      <button type="button" class="cgs2-secondary" data-cgs2-refresh>重新扫描界面元素</button>
-    </section>
-
-    <section class="cgs2-section">
-      <div class="cgs2-section-title">文字排版（可选）</div>
-      <label class="cgs2-toggle"><input type="checkbox" data-cgs2-key="typographyEnabled"> 启用文字样式覆盖</label>
-      <label class="cgs2-control"><span>字体</span><select data-cgs2-key="font"><option value="serif">系统衬线字体</option><option value="sans-serif">系统无衬线字体</option><option value="Noto Serif SC">Noto Serif SC</option><option value="KaiTi">楷体（设备支持时）</option><option value="ChillHuoSong_F">ChillHuoSong_F</option></select></label>
-      <label class="cgs2-control"><span>字号 <output data-cgs2-output="fontSize">1.00 rem</output></span><input data-cgs2-key="fontSize" type="range" min="0.85" max="1.4" step="0.01"></label>
-      <label class="cgs2-control"><span>正文颜色</span><input data-cgs2-key="bodyColor" type="color"></label>
-      <label class="cgs2-control"><span>次要文字颜色</span><input data-cgs2-key="secondaryColor" type="color"></label>
-      <label class="cgs2-control"><span>引用 / 强调颜色</span><input data-cgs2-key="quoteColor" type="color"></label>
-    </section>
-
-    <div class="cgs2-actions">
-      <button type="button" data-cgs2-reset>恢复通用版默认值</button>
-      <span data-cgs2-status>修改会自动保存</span>
-    </div>
-    <p class="cgs2-note">说明：选择器是主题适配的关键。不同美化的 DOM 结构和 CSS 优先级可能不同；内置了 Base_L 与双色盒子适配方案，其他主题仍可自定义；可以用浏览器检查元素后替换选择器。扩展只添加外观样式，不主动改动布局与交互。</p>
-  </div>
+ <div class="inline-drawer-toggle inline-drawer-header"><b>☁️ 云雾玻璃控制台</b><div class="inline-drawer-icon fa-solid fa-circle-chevron-down down"></div></div>
+ <div class="inline-drawer-content cgs2-content">
+  <p class="cgs2-intro">调节玻璃与文字效果，修改会立即预览并自动保存。</p>
+  <section class="cgs2-section">
+   <div class="cgs2-section-title">玻璃效果</div>
+   <label class="cgs2-control"><span>毛玻璃模糊 <output data-cgs2-output="blur">8 px</output></span><input data-cgs2-key="blur" type="range" min="0" max="16" step="1"></label>
+   <label class="cgs2-control"><span>玻璃透明度 <output data-cgs2-output="opacity">42%</output></span><input data-cgs2-key="opacity" type="range" min="0" max="70" step="1"></label>
+   <label class="cgs2-control"><span>玻璃底色</span><input data-cgs2-key="glassColor" type="color"></label>
+   <label class="cgs2-control"><span>顶部与底栏透明度 <output data-cgs2-output="barOpacity">32%</output></span><input data-cgs2-key="barOpacity" type="range" min="0" max="85" step="1"></label>
+  </section>
+  <section class="cgs2-section">
+   <div class="cgs2-section-title">字体与排版</div>
+   <label class="cgs2-control"><span>正文字体</span><select data-cgs2-key="font"><option value="serif">系统衬线字体</option><option value="sans-serif">系统无衬线字体</option><option value="Noto Serif SC">Noto Serif SC</option><option value="KaiTi">楷体（设备支持时）</option><option value="ChillHuoSong_F">ChillHuoSong_F</option></select></label>
+   <label class="cgs2-control"><span>正文字号 <output data-cgs2-output="fontSize">1.00 rem</output></span><input data-cgs2-key="fontSize" type="range" min="0.85" max="1.35" step="0.01"></label>
+  </section>
+  <section class="cgs2-section">
+   <div class="cgs2-section-title">文字颜色</div>
+   <label class="cgs2-control"><span>正文</span><input data-cgs2-key="bodyColor" type="color"></label>
+   <label class="cgs2-control"><span>灰色 / 斜体 / 次要文字</span><input data-cgs2-key="secondaryColor" type="color"></label>
+   <label class="cgs2-control"><span>引用 / 强调文字</span><input data-cgs2-key="quoteColor" type="color"></label>
+  </section>
+  <section class="cgs2-section">
+   <div class="cgs2-section-title">主题适配</div>
+   <label class="cgs2-control"><span>当前美化方案</span><select data-cgs2-adapter><option value="native">通用 / SillyTavern 原生</option><option value="baseL">Base_L</option><option value="duoBox">双色盒子 · 浅色毛玻璃</option></select></label>
+   <p class="cgs2-help">适配规则在后台自动处理，无需手动编辑 CSS 选择器。</p>
+  </section>
+  <section class="cgs2-section">
+   <div class="cgs2-section-title">我的主题模板</div>
+   <div class="cgs2-template-list" data-cgs2-template-list></div>
+   <button type="button" class="cgs2-save-template" data-save-template>＋ 保存当前参数为新模板</button>
+  </section>
+  <div class="cgs2-actions"><button type="button" data-cgs2-reset>恢复默认参数</button><span data-cgs2-status>修改会自动保存</span></div>
+  <p class="cgs2-note">模板保存在当前酒馆的扩展设置中。可以随时新增、应用或删除；适配方案与模板参数相互独立。</p>
+ </div>
 </div>

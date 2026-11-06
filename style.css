@@ -1,84 +1,27 @@
-/* Cloud Glass Studio Universal 2.1 — theme adapters + stronger cascade */
-#cloud-glass-studio-universal.cgs2 { width:100%; margin:0; padding:0; border:0; background:transparent; box-shadow:none; color:inherit; font-size:inherit; }
-#cloud-glass-studio-universal .cgs2-content { padding:0 .55em .65em; }
-#cloud-glass-studio-universal .cgs2-intro,
-#cloud-glass-studio-universal .cgs2-help,
-#cloud-glass-studio-universal .cgs2-note { font-size:.86em; line-height:1.5; opacity:.72; }
-#cloud-glass-studio-universal .cgs2-section { margin-top:.9em; padding-top:.75em; border-top:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.25)); }
-#cloud-glass-studio-universal .cgs2-section-title { margin-bottom:.65em; font-weight:700; }
-#cloud-glass-studio-universal .cgs2-control { display:block; margin:.75em 0; }
-#cloud-glass-studio-universal .cgs2-control>span { display:flex; justify-content:space-between; gap:.5em; margin-bottom:.35em; font-size:.94em; }
-#cloud-glass-studio-universal output { font-variant-numeric:tabular-nums; opacity:.7; }
-#cloud-glass-studio-universal input[type=range] { width:100%; accent-color:var(--SmartThemeQuoteColor,#668b91); }
-#cloud-glass-studio-universal input[type=color] { width:48px; height:34px; padding:2px; border:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.3)); border-radius:6px; background:transparent; }
-#cloud-glass-studio-universal select,
-#cloud-glass-studio-universal textarea { width:100%; box-sizing:border-box; padding:7px 9px; border-radius:6px; }
-#cloud-glass-studio-universal textarea { resize:vertical; font-family:monospace; font-size:.82em; }
-#cloud-glass-studio-universal .cgs2-presets { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-#cloud-glass-studio-universal .cgs2-presets button,
-#cloud-glass-studio-universal .cgs2-actions button,
-#cloud-glass-studio-universal .cgs2-secondary { min-height:36px; padding:6px 10px; border-radius:7px; }
-#cloud-glass-studio-universal .cgs2-region { margin:.55em 0; padding:.55em .7em; border:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.22)); border-radius:8px; }
-#cloud-glass-studio-universal .cgs2-region summary { cursor:pointer; font-weight:600; }
-#cloud-glass-studio-universal .cgs2-toggle { display:flex; align-items:center; gap:.5em; margin:.65em 0; }
-#cloud-glass-studio-universal .cgs2-actions { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:1em; }
-#cloud-glass-studio-universal [data-cgs2-status] { font-size:.8em; opacity:.65; }
-
-/* Shared glass tokens. Important declarations intentionally outrank theme-level !important backgrounds. */
-html body [data-cgs2-region] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  border-color:var(--cgs2-border,rgba(229,237,242,.22)) !important;
-  border-radius:var(--cgs2-radius,14px) !important;
-  box-shadow:var(--cgs2-shadow,0 8px 26px rgba(0,0,0,.18)) !important;
-}
-
-/* High-specificity adapters for themes that style the same ST elements with !important. */
-html body #chat[data-cgs2-region="chatCanvas"],
-html body #chat .mes[data-cgs2-region="messages"] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  border-color:var(--cgs2-border,rgba(229,237,242,.22)) !important;
-  box-shadow:var(--cgs2-shadow,0 8px 26px rgba(0,0,0,.18)) !important;
-}
-html body #top-bar[data-cgs2-region="topbar"],
-html body #top-settings-holder > .drawer[data-cgs2-region="topbar"] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-}
-html body #send_form[data-cgs2-region="composer"] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  border-color:var(--cgs2-border,rgba(229,237,242,.22)) !important;
-}
-html body .popup[data-cgs2-region="popups"],
-html body #dialogue_popup[data-cgs2-region="popups"],
-html body #select_chat_popup[data-cgs2-region="popups"],
-html body .draggable[data-cgs2-region="popups"] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-}
-html body .drawer-content[data-cgs2-region="panels"],
-html body .inline-drawer-content[data-cgs2-region="panels"],
-html body #left-nav-panel[data-cgs2-region="panels"],
-html body #right-nav-panel[data-cgs2-region="panels"] {
-  background-color:var(--cgs2-fill,rgba(229,237,242,.42)) !important;
-  -webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(var(--cgs2-saturation,115%)) !important;
-  border-color:var(--cgs2-border,rgba(229,237,242,.22)) !important;
-}
-
-html.cgs2-typography-on .mes .mes_text,
-html.cgs2-typography-on .mes .mes_text p,
-html.cgs2-typography-on .mes .mes_text li { font-family:var(--cgs2-font,serif) !important; font-size:var(--cgs2-font-size,1rem) !important; }
-html.cgs2-typography-on .mes .mes_text,
-html.cgs2-typography-on .mes .mes_text p { color:var(--cgs2-body-color,#263744) !important; }
-html.cgs2-typography-on .mes .mes_text em,
-html.cgs2-typography-on .mes .mes_text i { color:var(--cgs2-secondary-color,#626d75) !important; }
-html.cgs2-typography-on .mes .mes_text blockquote,
-html.cgs2-typography-on .mes .mes_text q { color:var(--cgs2-quote-color,#476c70) !important; }
+#cloud-glass-studio-universal.cgs2{width:100%;margin:0;padding:0;border:0;background:transparent;box-shadow:none;color:inherit;font-size:inherit}
+#cloud-glass-studio-universal .cgs2-content{padding:0 .55em .65em}
+#cloud-glass-studio-universal .cgs2-intro,#cloud-glass-studio-universal .cgs2-help,#cloud-glass-studio-universal .cgs2-note{font-size:.86em;line-height:1.5;opacity:.72}
+#cloud-glass-studio-universal .cgs2-section{margin-top:.85em;padding-top:.7em;border-top:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.25))}
+#cloud-glass-studio-universal .cgs2-section-title{margin-bottom:.55em;font-weight:700}
+#cloud-glass-studio-universal .cgs2-control{display:block;margin:.65em 0}
+#cloud-glass-studio-universal .cgs2-control>span{display:flex;justify-content:space-between;gap:.5em;margin-bottom:.3em;font-size:.94em}
+#cloud-glass-studio-universal output{font-variant-numeric:tabular-nums;opacity:.7}
+#cloud-glass-studio-universal input[type=range]{width:100%;accent-color:var(--SmartThemeQuoteColor,#668b91)}
+#cloud-glass-studio-universal input[type=color]{width:48px;height:34px;padding:2px;border:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.3));border-radius:6px;background:transparent}
+#cloud-glass-studio-universal select{width:100%;min-height:36px;padding:6px 9px;border-radius:6px}
+#cloud-glass-studio-universal .cgs2-template-list{display:grid;gap:6px}
+#cloud-glass-studio-universal .cgs2-template-row{display:flex;align-items:center;gap:6px;padding:7px 8px;border:1px solid var(--SmartThemeBorderColor,rgba(128,128,128,.22));border-radius:7px}
+#cloud-glass-studio-universal .cgs2-template-row span{flex:1;min-width:0;overflow-wrap:anywhere;font-size:.92em}
+#cloud-glass-studio-universal .cgs2-template-row button,#cloud-glass-studio-universal .cgs2-actions button,#cloud-glass-studio-universal .cgs2-save-template{min-height:34px;padding:5px 9px;border-radius:6px}
+#cloud-glass-studio-universal .cgs2-save-template{width:100%;margin-top:8px}
+#cloud-glass-studio-universal .cgs2-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:1em}
+#cloud-glass-studio-universal [data-cgs2-status]{font-size:.8em;opacity:.65}
+html body [data-cgs2-region]{background-color:var(--cgs2-fill,rgba(229,237,242,.42))!important;-webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important;backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important}
+html body #chat[data-cgs2-region=chatCanvas],html body #chat .mes[data-cgs2-region=messages]{background-color:var(--cgs2-fill,rgba(229,237,242,.42))!important;-webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important;backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important}
+html body #top-bar[data-cgs2-region=topbar],html body #top-settings-holder>.drawer[data-cgs2-region=topbar]{background-color:var(--cgs2-bar-fill,rgba(229,237,242,.32))!important;-webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important;backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important}
+html body #send_form[data-cgs2-region=composer]{background-color:var(--cgs2-bar-fill,rgba(229,237,242,.32))!important;-webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important;backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important}
+html body .popup[data-cgs2-region=popups],html body #dialogue_popup[data-cgs2-region=popups],html body #select_chat_popup[data-cgs2-region=popups],html body .draggable[data-cgs2-region=popups],html body .drawer-content[data-cgs2-region=panels],html body .inline-drawer-content[data-cgs2-region=panels],html body #left-nav-panel[data-cgs2-region=panels],html body #right-nav-panel[data-cgs2-region=panels]{background-color:var(--cgs2-fill,rgba(229,237,242,.42))!important;-webkit-backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important;backdrop-filter:blur(var(--cgs2-blur,8px)) saturate(115%)!important}
+html.cgs2-typography-on .mes .mes_text,html.cgs2-typography-on .mes .mes_text p,html.cgs2-typography-on .mes .mes_text li{font-family:var(--cgs2-font,serif)!important;font-size:var(--cgs2-font-size,1rem)!important}
+html.cgs2-typography-on .mes .mes_text,html.cgs2-typography-on .mes .mes_text p{color:var(--cgs2-body-color,#263744)!important}
+html.cgs2-typography-on .mes .mes_text em,html.cgs2-typography-on .mes .mes_text i{color:var(--cgs2-secondary-color,#626d75)!important}
+html.cgs2-typography-on .mes .mes_text blockquote,html.cgs2-typography-on .mes .mes_text q{color:var(--cgs2-quote-color,#476c70)!important}

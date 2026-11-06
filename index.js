@@ -1,278 +1,101 @@
 (() => {
-    'use strict';
-
-    const MODULE = 'cloud_glass_studio_universal';
-    const ROOT_ID = 'cloud-glass-studio-universal';
-    const STYLE_ID = 'cgs2-dynamic-region-style';
-
-    const DEFAULTS = {
-        blur: 8,
-        opacity: 42,
-        glassColor: '#e5edf2',
-        adapterProfile: 'native',
-        saturation: 115,
-        borderOpacity: 22,
-        shadow: 18,
-        radius: 14,
-        typographyEnabled: false,
-        font: 'serif',
-        fontSize: 1,
-        bodyColor: '#263744',
-        secondaryColor: '#626d75',
-        quoteColor: '#476c70',
-        regions: {
-            chatCanvas: { enabled: true, selector: '#chat' },
-            messages: { enabled: true, selector: '#chat .mes:not([is_system="true"])' },
-            topbar: { enabled: true, selector: '#top-bar, #top-settings-holder > .drawer' },
-            composer: { enabled: true, selector: '#send_form' },
-            popups: { enabled: true, selector: '.popup, .context-menu, .mes_buttons .dropdown-menu' },
-            panels: { enabled: true, selector: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content' }
-        }
-    };
-
-    const ADAPTERS = {
-        native: {
-            chatCanvas: '#chat',
-            messages: '#chat .mes:not([is_system="true"])',
-            topbar: '#top-bar, #top-settings-holder > .drawer',
-            composer: '#send_form',
-            popups: '.popup, .context-menu, .mes_buttons .dropdown-menu',
-            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'
-        },
-        baseL: {
-            chatCanvas: '#chat',
-            messages: '#chat .mes:not([is_system="true"])',
-            topbar: '#top-bar, #top-settings-holder > .drawer',
-            composer: '#send_form',
-            popups: '.popup',
-            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'
-        },
-        duoBox: {
-            chatCanvas: '#chat',
-            messages: '#chat .mes:not([is_system="true"])',
-            topbar: '#top-settings-holder > .drawer, #top-bar',
-            composer: '#send_form',
-            popups: '.popup:not(.transparent_dialogue_popup), #dialogue_popup, #select_chat_popup, .draggable',
-            panels: '.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'
-        }
-    };
-
-    const PRESETS = {
-        sky: {
-            blur: 9, opacity: 38, glassColor: '#e5edf2', saturation: 125, borderOpacity: 30, shadow: 14, radius: 16,
-            bodyColor: '#263744', secondaryColor: '#65727b', quoteColor: '#4c7180'
-        },
-        forest: {
-            blur: 7, opacity: 58, glassColor: '#c9ddce', saturation: 112, borderOpacity: 24, shadow: 22, radius: 13,
-            bodyColor: '#203b30', secondaryColor: '#59685d', quoteColor: '#326348'
-        },
-        rose: {
-            blur: 13, opacity: 48, glassColor: '#ead5d8', saturation: 108, borderOpacity: 38, shadow: 12, radius: 20,
-            bodyColor: '#49353d', secondaryColor: '#79666e', quoteColor: '#925c70'
-        },
-        midnight: {
-            blur: 16, opacity: 66, glassColor: '#252b3b', saturation: 135, borderOpacity: 34, shadow: 30, radius: 12,
-            bodyColor: '#edf0f7', secondaryColor: '#b5bdce', quoteColor: '#b9a5df'
-        },
-        native: {
-            blur: 0, opacity: 0, glassColor: '#ffffff', saturation: 100, borderOpacity: 0, shadow: 0, radius: 0,
-            bodyColor: '#263744', secondaryColor: '#626d75', quoteColor: '#476c70'
-        }
-    };
-
-    let settings;
-    let saveTimer;
-    let refreshTimer;
-    let observer;
-
-    function clone(value) { return JSON.parse(JSON.stringify(value)); }
-    function getPath(object, path) { return path.split('.').reduce((value, key) => value?.[key], object); }
-    function setPath(object, path, value) {
-        const parts = path.split('.');
-        const last = parts.pop();
-        const parent = parts.reduce((node, key) => node[key], object);
-        parent[last] = value;
-    }
-    function mergeDefaults(saved) {
-        const merged = clone(DEFAULTS);
-        if (!saved || typeof saved !== 'object') return merged;
-        for (const [key, value] of Object.entries(saved)) {
-            if (key === 'regions' && value && typeof value === 'object') {
-                for (const [region, config] of Object.entries(value)) {
-                    if (merged.regions[region] && config && typeof config === 'object') {
-                        merged.regions[region] = { ...merged.regions[region], ...config };
-                    }
-                }
-            } else if (key in merged) merged[key] = value;
-        }
-        return merged;
-    }
-    function getSettings() {
-        const context = SillyTavern.getContext();
-        context.extensionSettings[MODULE] = mergeDefaults(context.extensionSettings[MODULE]);
-        return context.extensionSettings[MODULE];
-    }
-    function hexToRgb(hex) {
-        const value = String(hex || '').replace('#', '');
-        if (!/^[0-9a-fA-F]{6}$/.test(value)) return { r: 229, g: 237, b: 242 };
-        return { r: parseInt(value.slice(0, 2), 16), g: parseInt(value.slice(2, 4), 16), b: parseInt(value.slice(4, 6), 16) };
-    }
-    function rgba(hex, alpha) {
-        const { r, g, b } = hexToRgb(hex);
-        return `rgba(${r}, ${g}, ${b}, ${Math.max(0, Math.min(1, alpha))})`;
-    }
-    function ensureDynamicStyle() {
-        let style = document.getElementById(STYLE_ID);
-        if (!style) {
-            style = document.createElement('style');
-            style.id = STYLE_ID;
-            document.head.appendChild(style);
-        }
-        return style;
-    }
-    function applySettings() {
-        const root = document.documentElement;
-        root.style.setProperty('--cgs2-blur', `${Number(settings.blur)}px`);
-        root.style.setProperty('--cgs2-fill', rgba(settings.glassColor, Number(settings.opacity) / 100));
-        root.style.setProperty('--cgs2-saturation', `${Number(settings.saturation)}%`);
-        root.style.setProperty('--cgs2-border', rgba(settings.glassColor, Number(settings.borderOpacity) / 100));
-        root.style.setProperty('--cgs2-shadow', `0 8px 26px rgba(0,0,0,${Number(settings.shadow) / 100})`);
-        root.style.setProperty('--cgs2-radius', `${Number(settings.radius)}px`);
-        root.style.setProperty('--cgs2-font', `"${String(settings.font).replace(/["\\]/g, '')}", "Noto Serif SC", serif`);
-        root.style.setProperty('--cgs2-font-size', `${Number(settings.fontSize)}rem`);
-        root.style.setProperty('--cgs2-body-color', settings.bodyColor);
-        root.style.setProperty('--cgs2-secondary-color', settings.secondaryColor);
-        root.style.setProperty('--cgs2-quote-color', settings.quoteColor);
-        root.classList.toggle('cgs2-typography-on', Boolean(settings.typographyEnabled));
-        refreshTargets();
-        syncControls();
-    }
-    function refreshTargets() {
-        document.querySelectorAll('[data-cgs2-region]').forEach(element => element.removeAttribute('data-cgs2-region'));
-        const rules = [];
-        for (const [region, config] of Object.entries(settings.regions)) {
-            if (!config.enabled || !String(config.selector || '').trim()) continue;
-            try {
-                const matches = document.querySelectorAll(config.selector);
-                matches.forEach(element => element.setAttribute('data-cgs2-region', region));
-                rules.push(`[data-cgs2-region="${region}"]{--cgs2-region-fill:var(--cgs2-fill);}`);
-            } catch (error) {
-                console.warn(`[云雾玻璃控制台·通用版] ${region} 选择器无效：`, error);
-            }
-        }
-        ensureDynamicStyle().textContent = rules.join('\n');
-    }
-    function syncControls() {
-        const panel = document.getElementById(ROOT_ID);
-        if (!panel) return;
-        const adapterSelect = panel.querySelector('[data-cgs2-adapter]');
-        if (adapterSelect) adapterSelect.value = settings.adapterProfile || 'native';
-        panel.querySelectorAll('[data-cgs2-key]').forEach(control => {
-            const value = getPath(settings, control.dataset.cgs2Key);
-            if (value === undefined || document.activeElement === control) return;
-            if (control.type === 'checkbox') control.checked = Boolean(value);
-            else control.value = value;
-            const output = panel.querySelector(`[data-cgs2-output="${control.dataset.cgs2Key}"]`);
-            if (output) {
-                const key = control.dataset.cgs2Key;
-                if (['blur', 'radius'].includes(key)) output.textContent = `${value} px`;
-                else if (['opacity', 'borderOpacity', 'shadow'].includes(key)) output.textContent = `${value}%`;
-                else if (key === 'saturation') output.textContent = `${value}%`;
-                else if (key === 'fontSize') output.textContent = `${Number(value).toFixed(2)} rem`;
-            }
-        });
-    }
-    function saveSoon() {
-        const status = document.querySelector(`#${ROOT_ID} [data-cgs2-status]`);
-        if (status) status.textContent = '正在保存…';
-        clearTimeout(saveTimer);
-        saveTimer = setTimeout(() => {
-            SillyTavern.getContext().saveSettingsDebounced();
-            if (status) status.textContent = '已自动保存';
-        }, 300);
-    }
-    function updateControl(control) {
-        const path = control.dataset.cgs2Key;
-        if (!path) return;
-        let value;
-        if (control.type === 'checkbox') value = control.checked;
-        else if (control.type === 'range' || control.type === 'number') value = Number(control.value);
-        else value = control.value;
-        setPath(settings, path, value);
-        if (path.endsWith('.selector')) {
-            clearTimeout(refreshTimer);
-            refreshTimer = setTimeout(refreshTargets, 260);
-            syncControls();
-        } else {
-            applySettings();
-        }
-        saveSoon();
-    }
-    function applyAdapter(name) {
-        const adapter = ADAPTERS[name];
-        if (!adapter) return;
-        settings.adapterProfile = name;
-        for (const [region, selector] of Object.entries(adapter)) {
-            settings.regions[region] = { ...(settings.regions[region] || {}), enabled: true, selector };
-        }
-        applySettings();
-        saveSoon();
-    }
-    function setPreset(name) {
-        const preset = PRESETS[name];
-        if (!preset) return;
-        Object.assign(settings, preset);
-        if (name === 'native') {
-            Object.values(settings.regions).forEach(region => { region.enabled = false; });
-        } else {
-            Object.values(settings.regions).forEach(region => { region.enabled = true; });
-        }
-        applySettings();
-        saveSoon();
-    }
-    async function mountPanel() {
-        const target = document.querySelector('#extensions_settings2') || document.querySelector('#extensions_settings');
-        if (!target || document.getElementById(ROOT_ID)) return;
-        const html = await SillyTavern.getContext().renderExtensionTemplateAsync('third-party/cloud-glass-studio-universal', 'settings');
-        target.insertAdjacentHTML('beforeend', html);
-        const panel = document.getElementById(ROOT_ID);
-        if (!panel) return;
-        panel.addEventListener('input', event => { if (event.target.matches('[data-cgs2-key]')) updateControl(event.target); });
-        panel.addEventListener('change', event => {
-            if (event.target.matches('[data-cgs2-key]')) updateControl(event.target);
-            if (event.target.matches('[data-cgs2-adapter]')) applyAdapter(event.target.value);
-        });
-        panel.addEventListener('click', event => {
-            const preset = event.target.closest('[data-cgs2-preset]');
-            if (preset) setPreset(preset.dataset.cgs2Preset);
-            if (event.target.closest('[data-cgs2-reset]')) {
-                settings = clone(DEFAULTS);
-                applySettings();
-                saveSoon();
-            }
-            if (event.target.closest('[data-cgs2-refresh]')) refreshTargets();
-        });
-        syncControls();
-    }
-    function watchDom() {
-        if (observer || !document.documentElement) return;
-        observer = new MutationObserver(() => {
-            clearTimeout(refreshTimer);
-            refreshTimer = setTimeout(refreshTargets, 180);
-        });
-        observer.observe(document.documentElement, { childList: true, subtree: true });
-    }
-    async function init() {
-        try {
-            settings = getSettings();
-            applySettings();
-            await mountPanel();
-            watchDom();
-            console.info('[云雾玻璃控制台·通用版] 2.0.0 已加载');
-        } catch (error) {
-            console.error('[云雾玻璃控制台·通用版] 初始化失败', error);
-        }
-    }
-    if (window.jQuery) window.jQuery(init);
-    else document.addEventListener('DOMContentLoaded', init, { once: true });
+'use strict';
+const MODULE='cloud_glass_studio_universal', ROOT_ID='cloud-glass-studio-universal', STYLE_ID='cgs2-dynamic-region-style';
+const DEFAULTS={
+ blur:8, opacity:42, barOpacity:32, glassColor:'#e5edf2',
+ adapterProfile:'native', font:'serif', fontSize:1, bodyColor:'#263744',
+ secondaryColor:'#626d75', quoteColor:'#476c70',
+ regions:{
+  chatCanvas:{enabled:true,selector:'#chat'},
+  messages:{enabled:true,selector:'#chat .mes:not([is_system="true"])'},
+  topbar:{enabled:true,selector:'#top-bar, #top-settings-holder > .drawer'},
+  composer:{enabled:true,selector:'#send_form'},
+  popups:{enabled:true,selector:'.popup, .context-menu, .mes_buttons .dropdown-menu'},
+  panels:{enabled:true,selector:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'}
+ },
+ templates:[]
+};
+const ADAPTERS={
+ native:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar, #top-settings-holder > .drawer',composer:'#send_form',popups:'.popup, .context-menu, .mes_buttons .dropdown-menu',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings2 .inline-drawer-content, #extensions_settings .inline-drawer-content'},
+ baseL:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-bar, #top-settings-holder > .drawer',composer:'#send_form',popups:'.popup',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'},
+ duoBox:{chatCanvas:'#chat',messages:'#chat .mes:not([is_system="true"])',topbar:'#top-settings-holder > .drawer, #top-bar',composer:'#send_form',popups:'.popup:not(.transparent_dialogue_popup), #dialogue_popup, #select_chat_popup, .draggable',panels:'.drawer-content, #left-nav-panel, #right-nav-panel, #extensions_settings .inline-drawer-content, #extensions_settings2 .inline-drawer-content'}
+};
+const STARTER=[
+ {id:'sky',name:'☁️ 晴空云雾',values:{blur:9,opacity:38,barOpacity:30,glassColor:'#e5edf2',font:'serif',fontSize:1,bodyColor:'#263744',secondaryColor:'#65727b',quoteColor:'#4c7180'}},
+ {id:'forest',name:'🌿 森林手札',values:{blur:7,opacity:55,barOpacity:40,glassColor:'#c9ddce',font:'serif',fontSize:1,bodyColor:'#203b30',secondaryColor:'#59685d',quoteColor:'#326348'}},
+ {id:'rose',name:'🌸 玫瑰旧笺',values:{blur:10,opacity:45,barOpacity:34,glassColor:'#ead5d8',font:'serif',fontSize:1,bodyColor:'#49353d',secondaryColor:'#79666e',quoteColor:'#925c70'}},
+ {id:'midnight',name:'🌙 午夜星河',values:{blur:14,opacity:62,barOpacity:48,glassColor:'#252b3b',font:'serif',fontSize:1,bodyColor:'#edf0f7',secondaryColor:'#b5bdce',quoteColor:'#b9a5df'}}
+];
+let settings,saveTimer,refreshTimer,observer;
+const clone=v=>JSON.parse(JSON.stringify(v));
+function merge(saved){
+ const s=clone(DEFAULTS); if(!saved||typeof saved!=='object')return s;
+ for(const [k,v] of Object.entries(saved)){if(k==='regions'&&v){for(const [r,c] of Object.entries(v))if(s.regions[r])s.regions[r]={...s.regions[r],...c};}else if(k in s)s[k]=v;}
+ if(!Array.isArray(s.templates))s.templates=[];
+ if(!s.templates.length)s.templates=clone(STARTER);
+ return s;
+}
+function getSettings(){const c=SillyTavern.getContext();c.extensionSettings[MODULE]=merge(c.extensionSettings[MODULE]);return c.extensionSettings[MODULE];}
+function rgb(h){let v=String(h||'').replace('#','');if(!/^[\da-f]{6}$/i.test(v))v='e5edf2';return [0,2,4].map(i=>parseInt(v.slice(i,i+2),16));}
+function rgba(h,a){return `rgba(${rgb(h).join(',')},${Math.max(0,Math.min(1,a))})`;}
+function styleNode(){let n=document.getElementById(STYLE_ID);if(!n){n=document.createElement('style');n.id=STYLE_ID;document.head.appendChild(n);}return n;}
+function refreshTargets(){
+ document.querySelectorAll('[data-cgs2-region]').forEach(e=>e.removeAttribute('data-cgs2-region'));
+ const rules=[];
+ for(const [region,c] of Object.entries(settings.regions)){if(!c.enabled||!c.selector)continue;try{document.querySelectorAll(c.selector).forEach(e=>e.setAttribute('data-cgs2-region',region));}catch(e){console.warn('[云雾玻璃] 无效适配选择器',region,e);}}
+ styleNode().textContent=rules.join('\n');
+}
+function apply(){
+ const r=document.documentElement;
+ r.style.setProperty('--cgs2-blur',`${+settings.blur||0}px`);
+ r.style.setProperty('--cgs2-fill',rgba(settings.glassColor,(+settings.opacity||0)/100));
+ r.style.setProperty('--cgs2-bar-fill',rgba(settings.glassColor,(+settings.barOpacity||0)/100));
+ r.style.setProperty('--cgs2-font',`"${String(settings.font).replace(/["\\]/g,'')}", "Noto Serif SC", serif`);
+ r.style.setProperty('--cgs2-font-size',`${+settings.fontSize||1}rem`);
+ r.style.setProperty('--cgs2-body-color',settings.bodyColor);
+ r.style.setProperty('--cgs2-secondary-color',settings.secondaryColor);
+ r.style.setProperty('--cgs2-quote-color',settings.quoteColor);
+ r.classList.add('cgs2-typography-on');
+ refreshTargets();syncControls();
+}
+function syncControls(){
+ const p=document.getElementById(ROOT_ID);if(!p)return;
+ p.querySelectorAll('[data-cgs2-key]').forEach(el=>{const v=settings[el.dataset.cgs2Key];if(v===undefined||document.activeElement===el)return;el.value=v;const o=p.querySelector(`[data-cgs2-output="${el.dataset.cgs2Key}"]`);if(o)o.textContent=el.dataset.cgs2Key==='blur'?`${v} px`:['opacity','barOpacity'].includes(el.dataset.cgs2Key)?`${v}%`:`${Number(v).toFixed(2)} rem`;});
+ renderTemplates();
+}
+function saveSoon(){const s=document.querySelector(`#${ROOT_ID} [data-cgs2-status]`);if(s)s.textContent='正在保存…';clearTimeout(saveTimer);saveTimer=setTimeout(()=>{SillyTavern.getContext().saveSettingsDebounced();if(s)s.textContent='已自动保存';},250);}
+function update(el){const k=el.dataset.cgs2Key;if(!(k in DEFAULTS))return;settings[k]=el.type==='range'?Number(el.value):el.value;apply();saveSoon();}
+function applyAdapter(name){if(!ADAPTERS[name])return;settings.adapterProfile=name;for(const [k,v] of Object.entries(ADAPTERS[name]))settings.regions[k]={...(settings.regions[k]||{}),enabled:true,selector:v};apply();saveSoon();}
+function snapshot(){return Object.fromEntries(['blur','opacity','barOpacity','glassColor','font','fontSize','bodyColor','secondaryColor','quoteColor'].map(k=>[k,settings[k]]));}
+function applyTemplate(id){const t=settings.templates.find(x=>x.id===id);if(!t)return;Object.assign(settings,t.values);apply();saveSoon();}
+function renderTemplates(){
+ const box=document.querySelector(`#${ROOT_ID} [data-cgs2-template-list]`);if(!box)return;
+ box.innerHTML='';
+ settings.templates.forEach(t=>{const row=document.createElement('div');row.className='cgs2-template-row';const name=document.createElement('span');name.textContent=t.name;const use=document.createElement('button');use.type='button';use.textContent='应用';use.dataset.applyTemplate=t.id;const rename=document.createElement('button');rename.type='button';rename.textContent='改名';rename.dataset.renameTemplate=t.id;const del=document.createElement('button');del.type='button';del.textContent='删除';del.dataset.deleteTemplate=t.id;row.append(name,use,rename,del);box.appendChild(row);});
+}
+function saveTemplate(){
+ const name=prompt('给这套模板起个名字：');if(!name||!name.trim())return;
+ settings.templates.push({id:`custom-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name:name.trim(),values:snapshot()});saveSoon();renderTemplates();
+}
+async function mount(){
+ const target=document.querySelector('#extensions_settings2')||document.querySelector('#extensions_settings');if(!target||document.getElementById(ROOT_ID))return;
+ const html=await SillyTavern.getContext().renderExtensionTemplateAsync('third-party/cloud-glass-studio-universal','settings');target.insertAdjacentHTML('beforeend',html);
+ const p=document.getElementById(ROOT_ID);if(!p)return;
+ p.addEventListener('input',e=>{if(e.target.matches('[data-cgs2-key]'))update(e.target);});
+ p.addEventListener('change',e=>{if(e.target.matches('[data-cgs2-key]'))update(e.target);if(e.target.matches('[data-cgs2-adapter]'))applyAdapter(e.target.value);});
+ p.addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.cgs2Preset){applyTemplate(b.dataset.cgs2Preset);return;}
+  if(b.dataset.applyTemplate){applyTemplate(b.dataset.applyTemplate);return;}
+  if(b.dataset.renameTemplate){const t=settings.templates.find(x=>x.id===b.dataset.renameTemplate);if(t){const name=prompt('修改模板名称：',t.name);if(name&&name.trim()){t.name=name.trim();saveSoon();renderTemplates();}}return;}
+  if(b.dataset.deleteTemplate){const t=settings.templates.find(x=>x.id===b.dataset.deleteTemplate);if(t&&confirm(`删除模板“${t.name}”？`)){settings.templates=settings.templates.filter(x=>x.id!==t.id);saveSoon();renderTemplates();}return;}
+  if(b.matches('[data-save-template]')){saveTemplate();return;}
+  if(b.matches('[data-cgs2-reset]')){Object.assign(settings,clone(DEFAULTS));settings.templates=settings.templates.length?settings.templates:clone(STARTER);apply();saveSoon();}
+ });
+ const a=p.querySelector('[data-cgs2-adapter]');if(a)a.value=settings.adapterProfile||'native';
+ syncControls();
+}
+function watch(){if(observer||!document.documentElement)return;observer=new MutationObserver(()=>{clearTimeout(refreshTimer);refreshTimer=setTimeout(refreshTargets,180);});observer.observe(document.documentElement,{childList:true,subtree:true});}
+async function init(){try{settings=getSettings();apply();await mount();watch();console.info('[云雾玻璃控制台] 简洁通用版已加载');}catch(e){console.error('[云雾玻璃控制台] 初始化失败',e);}}
+if(window.jQuery)window.jQuery(init);else document.addEventListener('DOMContentLoaded',init,{once:true});
 })();
